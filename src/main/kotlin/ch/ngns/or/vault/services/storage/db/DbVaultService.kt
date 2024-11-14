@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import java.io.*
 import java.util.concurrent.Executors
+import kotlin.concurrent.thread
 
 @Service("vaultService")
 class DbVaultService (
@@ -59,7 +60,6 @@ class DbVaultService (
 
     override fun retrieveObject(uuid: UUID,  outputStream: OutputStream) {
         val dbVaultObject = dbVaultRepository.findByIdOrNull(uuid) ?: throw FileNotFoundException()
-
         streamObject(dbVaultObject, outputStream)
     }
 
@@ -121,4 +121,24 @@ class DbVaultService (
             }
         }
 
+    override fun streamObjectAsPipedInputStream(uuid: UUID, outputStream: OutputStream): InputStream {
+        var pOut = retrieveObject(uuid, outputStream)
+        return pipeOutputStreamToPipedInputStream {
+            outputStream.buffered().use {}
+        }
+    }
+
+    private fun pipeOutputStreamToPipedInputStream(writeToOutput: (OutputStream) -> Unit): PipedInputStream {
+        val pipedInputStream = PipedInputStream()
+        val pipedOutputStream = PipedOutputStream(pipedInputStream)
+
+        // Schreibe in einem separaten Thread in den PipedOutputStream
+        thread {
+            pipedOutputStream.use { outputStream ->
+                writeToOutput(outputStream)  // Daten werden in den OutputStream geschrieben
+            }
+        }
+
+        return pipedInputStream
+    }
 }

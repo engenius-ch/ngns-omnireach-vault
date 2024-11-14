@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class EncryptionService(
-    val encrptionUtil: EncrptionUtil
+    val encryptionUtil: EncryptionUtil
 ) {
 
 }

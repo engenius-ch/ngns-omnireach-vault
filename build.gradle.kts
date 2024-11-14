@@ -40,6 +40,8 @@ dependencies {
 	testImplementation("io.rest-assured:spring-mock-mvc:5.3.2")
 	testImplementation("org.assertj:assertj-core")
 	testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
+
+
 }
 
 tasks.withType<KotlinCompile> {
