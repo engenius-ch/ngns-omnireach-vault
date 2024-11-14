@@ -5,6 +5,7 @@ import org.springdoc.webmvc.ui.SwaggerIndexTransformer
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
 import java.io.*
+import java.security.MessageDigest
 import javax.crypto.*
 import javax.crypto.spec.SecretKeySpec
 import kotlin.concurrent.thread
@@ -18,16 +19,31 @@ class EncryptionUtil(
         return orVaultProperties.encryptionSalt
     }
 
-    fun createKeyFromString(keyString: String): SecretKey {
-        val keyBytes = keyString.toByteArray(Charsets.UTF_8)
+    fun getInitializedCipherInstanceForEncryption(passphrase: String): Cipher = getInitializedCipherInstance(passphrase, Cipher.ENCRYPT_MODE)
+
+    fun getInitializedCipherInstanceForDecryption(passphrase: String): Cipher = getInitializedCipherInstance(passphrase, Cipher.DECRYPT_MODE)
+
+    fun getInitializedCipherInstance(passphrase: String, cipherMode: Int, rawKeyPassphrase : Boolean = false) : Cipher {
+        val secretKey: SecretKey = createKeyFromString(passphrase, rawKeyPassphrase)
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")  // AES algorithm with ECB mode and PKCS5 padding
+        cipher.init(cipherMode, secretKey)
+        return cipher
+    }
+
+    fun createKeyFromString(keyString: String, useRaw : Boolean = false): SecretKey {
+
+        // if there is a salt, let's add it to the passphrase
+        getSalt()?.let { keyString.plus(it) }
+
+        val hashedKey = hashStringThreadSafe(keyString)
+        val keyBytes = if (useRaw) {keyString.toByteArray(Charsets.UTF_8)} else hashedKey.toByteArray(Charsets.UTF_8)
 
         // Schlüssel auf 16, 24 oder 32 Bytes bringen (für AES erforderlich)
-        val keyLength = 32 // 256-Bit AES (32 Byte)
-        val keyPadded = ByteArray(keyLength)
+        val keyLength = orVaultProperties.encryptionKeyLength!! // 256-Bit AES (32 Byte)
+        val keyPadded = ByteArray(keyLength!!)
 
         // Bytes des Strings kopieren (oder kürzen)
         System.arraycopy(keyBytes, 0, keyPadded, 0, keyBytes.size.coerceAtMost(keyLength))
-
         return SecretKeySpec(keyPadded, "AES")
     }
 
@@ -83,6 +99,17 @@ class EncryptionUtil(
                 }
             }
         }
+    }
+
+    private val threadLocalDigest: ThreadLocal<MessageDigest> = ThreadLocal.withInitial {
+        MessageDigest.getInstance("SHA-256")
+    }
+
+    fun hashStringThreadSafe(input: String): String {
+        val bytes = input.toByteArray()
+        val md = threadLocalDigest.get()  // Each thread gets its own MessageDigest instance
+        val digest = md.digest(bytes)
+        return digest.joinToString("") { "%02x".format(it) }
     }
 }
 

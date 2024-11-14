@@ -1,0 +1,11 @@
+server:
+  ssl:
+    enabled: false
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+
+orvault:
+  services:
+    encryption-salt: ${ORVAULT_ENC_SALT:ortest}

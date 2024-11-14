@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: omnireach-vault
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yml
+  servlet:
+    multipart:
+      max-file-size: 4GB
+      max-request-size: 4GB
+
+server:
+  port: 8100
+  servlet:
+    context-path: /api
+
+orvault:
+  services:
+    encryption-salt: ${ORVAULT_ENC_SALT:GiwRRVGn7dxwfB685fdPGIZMh0fNNShsgZ7gVCPYFXCGjzBMvTcGA8LCBs4Tmx7QGCkyapRZfj9gO7tq5LWZx1JEmtB6Os9jmPmg}
+    encryption-key-length: ${ORVAULT_ENC_KEY_LENGTH:32}
+
+

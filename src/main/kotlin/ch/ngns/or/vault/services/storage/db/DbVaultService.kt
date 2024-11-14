@@ -7,6 +7,7 @@ import ch.ngns.or.vault.services.repository.DbVaultRepository
 import ch.ngns.or.vault.services.storage.VaultService
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.*
 import kotlinx.coroutines.*
@@ -35,6 +36,7 @@ class DbVaultService (
     private val defaultSegmentSize = 5_000_000
     private val defaultSegmentFetchParallelism = 10
 
+    @Transactional
     override fun storeObject(dataStream: InputStream): UUID? =
         dataStream.use {
             val segmentSize = getSegmentSize()
