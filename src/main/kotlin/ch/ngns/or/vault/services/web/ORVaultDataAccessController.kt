@@ -24,33 +24,28 @@ import kotlin.concurrent.thread
 @Tag(description = "Store and retreive data from the vault", name = "Vault Controller")
 @Component
 class ORVaultController(
-    val encryptionUtil: EncryptionUtil,
-    val encryptionService: EncryptionService,
-    val vaultService: VaultService,
+    private val encryptionUtil: EncryptionUtil,
+    private val encryptionService: EncryptionService,
+    private val vaultService: VaultService,
 ) {
-    private val logger = LoggerFactory.getLogger(ORVaultController::class.java)
 
-    @GetMapping("/hello")
-    @Operation(description = "simple hello world one to test the service")
-    fun getHello(
-        @RequestParam iam: String?
-    ): String = "Hello $iam"
+    private val logger = LoggerFactory.getLogger(ORVaultController::class.java)
 
     @GetMapping("/salt")
     @Operation(description = "Fetch a salt")
     fun getSalt(): String? = encryptionUtil.getSalt()
 
     @GetMapping("/{id}/stream")
-    fun downloadFileStreaming(@PathVariable id: String, @RequestParam(name = "noDownload", required = false, defaultValue = "false") noDownload: Boolean, @RequestHeader(name = "X-Encryption-Key", required = false) encryptionKey: String?): ResponseEntity<StreamingResponseBody> {
-        val uuid = UUID.fromString(id)
-
-        val pOut = PipedOutputStream()
-        if (encryptionKey.isNullOrEmpty()) {
-            return ResponseEntityUtil.createStreamingResponseEntity(id, null,  noDownload) { outputStream: OutputStream ->
+    fun downloadFileStreaming(
+        @RequestHeader(name = "X-Encryption-Key", required = false) encryptionKey: String?,
+        @PathVariable(name = "id") id: String,
+        @RequestParam(name = "noDownload", required = false, defaultValue = "false") noDownload: Boolean
+    ): ResponseEntity<StreamingResponseBody> =
+        ResponseEntityUtil.createStreamingResponseEntity(id, null, noDownload) { outputStream: OutputStream ->
+            val uuid = UUID.fromString(id)
+            if (encryptionKey.isNullOrEmpty()) {
                 vaultService.retrieveObject(uuid, outputStream)
-            }
-        } else {
-            return ResponseEntityUtil.createStreamingResponseEntity(id, null,  noDownload) { outputStream: OutputStream ->
+            } else {
                 val encOutputStream = PipedOutputStream()
                 var rawInputStream = PipedInputStream(encOutputStream)
 
@@ -66,14 +61,15 @@ class ORVaultController(
             }
         }
 
-    }
-
     @PostMapping("/upload", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    fun uploadFile(@RequestParam file: MultipartFile, @RequestHeader(name = "X-Encryption-Key", required = false) encryptionKey: String?): UUID? {
-        logger.debug("encryptionKey: $encryptionKey")
+    fun uploadFile(
+        @RequestHeader(name = "X-Encryption-Key", required = false) encryptionKey: String?,
+        @RequestParam file: MultipartFile
+    ): UUID? =
         encryptionKey?.let { encKey ->
-            var encOutputStream = PipedOutputStream()
-            var encryptedInputStream = PipedInputStream(encOutputStream)
+            logger.debug("encryptionKey: $encKey")
+            val encOutputStream = PipedOutputStream()
+            val encryptedInputStream = PipedInputStream(encOutputStream)
             thread {
                 try {
                     encryptionService.zipEncryptAndBase64EncodeStream(file.inputStream, encOutputStream, encKey)
@@ -81,23 +77,7 @@ class ORVaultController(
                     encOutputStream.close() // Ensure the stream is closed to avoid hanging
                 }
             }
-            return vaultService.storeObject(encryptedInputStream)
-        } ?: return vaultService.storeObject(file.inputStream)
-    }
+            vaultService.storeObject(encryptedInputStream)
+        } ?: vaultService.storeObject(file.inputStream)
 
-    private fun pipedInputStreamFromMultipartfile(file: MultipartFile): PipedInputStream {
-        val pipedInputStream = PipedInputStream()
-        val pipedOutputStream = PipedOutputStream(pipedInputStream)
-
-        // Start a new thread to pipe data from FileInputStream to PipedOutputStream
-        thread {
-            file.inputStream.use { fileInputStream ->
-                pipedOutputStream.use { outputStream ->
-                    fileInputStream.copyTo(outputStream)
-                }
-            }
-        }
-
-        return pipedInputStream
-    }
 }

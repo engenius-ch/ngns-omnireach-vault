@@ -44,7 +44,6 @@ class DbVaultObjectSegment {
         private var segmentIndex : Int = 0,
     ): Serializable {
 
-
         override fun equals(o: Any?): Boolean {
             if (this === o) return true
             if (o == null || javaClass != o.javaClass) return false
@@ -55,5 +54,7 @@ class DbVaultObjectSegment {
         override fun hashCode(): Int {
             return Objects.hash(dbVaultObjectId, segmentIndex)
         }
+
     }
+
 }

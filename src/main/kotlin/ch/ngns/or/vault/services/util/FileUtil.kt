@@ -1,12 +1,12 @@
 package ch.ngns.or.vault.services.util
 
-import org.springframework.web.multipart.MultipartFile
 import org.apache.tika.detect.DefaultDetector
 import org.apache.tika.detect.Detector
+import org.apache.tika.metadata.Metadata
 import org.apache.tika.mime.MediaType
+import org.springframework.web.multipart.MultipartFile
 import java.io.IOException
 import java.io.InputStream
-import org.apache.tika.metadata.Metadata
 
 class FileUtil {
 
@@ -35,4 +35,5 @@ class FileUtil {
             return mediaType.toString()
         }
     }
+
 }

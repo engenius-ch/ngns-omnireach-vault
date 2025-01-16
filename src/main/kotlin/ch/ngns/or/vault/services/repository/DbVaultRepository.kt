@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-interface DbVaultRepository : JpaRepository<DbVaultObject, UUID> {
-}
+interface DbVaultRepository : JpaRepository<DbVaultObject, UUID>

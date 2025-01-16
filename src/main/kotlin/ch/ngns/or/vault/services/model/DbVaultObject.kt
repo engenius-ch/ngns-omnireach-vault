@@ -32,7 +32,7 @@ data class DbVaultObject(
     var size: Long = 0
 ) {
     @PrePersist
-    protected fun onCreate() {
+    fun onCreate() {
         createdAt = LocalDateTime.now()
     }
 

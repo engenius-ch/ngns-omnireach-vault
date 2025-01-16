@@ -1,23 +1,24 @@
 package ch.ngns.or.vault.services.excryption
 
 import ch.ngns.or.vault.services.config.ORVaultProperties
-import org.springdoc.webmvc.ui.SwaggerIndexTransformer
 import org.springframework.stereotype.Component
-import org.springframework.web.multipart.MultipartFile
-import java.io.*
+import java.io.InputStream
+import java.io.OutputStream
+import java.io.PipedInputStream
+import java.io.PipedOutputStream
 import java.security.MessageDigest
-import javax.crypto.*
+import javax.crypto.Cipher
+import javax.crypto.CipherInputStream
+import javax.crypto.CipherOutputStream
+import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
 import kotlin.concurrent.thread
-
 
 @Component
 class EncryptionUtil(
     private val orVaultProperties: ORVaultProperties,
 ) {
-    fun getSalt(): String? {
-        return orVaultProperties.encryptionSalt
-    }
+    fun getSalt(): String? = orVaultProperties.encryptionSalt
 
     fun getInitializedCipherInstanceForEncryption(passphrase: String): Cipher = getInitializedCipherInstance(passphrase, Cipher.ENCRYPT_MODE)
 
@@ -31,7 +32,6 @@ class EncryptionUtil(
     }
 
     fun createKeyFromString(keyString: String, useRaw : Boolean = false): SecretKey {
-
         // if there is a salt, let's add it to the passphrase
         getSalt()?.let { keyString.plus(it) }
 
@@ -40,7 +40,7 @@ class EncryptionUtil(
 
         // Schlüssel auf 16, 24 oder 32 Bytes bringen (für AES erforderlich)
         val keyLength = orVaultProperties.encryptionKeyLength!! // 256-Bit AES (32 Byte)
-        val keyPadded = ByteArray(keyLength!!)
+        val keyPadded = ByteArray(keyLength)
 
         // Bytes des Strings kopieren (oder kürzen)
         System.arraycopy(keyBytes, 0, keyPadded, 0, keyBytes.size.coerceAtMost(keyLength))
@@ -111,5 +111,6 @@ class EncryptionUtil(
         val digest = md.digest(bytes)
         return digest.joinToString("") { "%02x".format(it) }
     }
+
 }
 

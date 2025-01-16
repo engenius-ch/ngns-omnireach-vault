@@ -8,17 +8,20 @@ import ch.ngns.or.vault.services.storage.VaultService
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
-import org.springframework.stereotype.Service
-import java.util.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Service
 import java.io.*
+import java.util.*
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
 
@@ -76,7 +79,7 @@ class DbVaultService (
 
     private fun getSegmentSize() = defaultSegmentSize
 
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun CoroutineScope.inputStreamToChunks(input: InputStream, chunkSize: Int) =
         produce {
             val bis = BufferedInputStream(input)
@@ -100,7 +103,7 @@ class DbVaultService (
         return if (totalBytesRead > 0) totalBytesRead else -1
     }
 
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun streamObject(dbVaultObject: DbVaultObject, outputStream: OutputStream): Unit =
         BufferedOutputStream(outputStream).use { bos ->
             IOUtils.write(dbVaultObject.data, bos)
@@ -123,12 +126,10 @@ class DbVaultService (
             }
         }
 
-    override fun streamObjectAsPipedInputStream(uuid: UUID, outputStream: OutputStream): InputStream {
-        var pOut = retrieveObject(uuid, outputStream)
-        return pipeOutputStreamToPipedInputStream {
+    override fun streamObjectAsPipedInputStream(uuid: UUID, outputStream: OutputStream): InputStream =
+        pipeOutputStreamToPipedInputStream {
             outputStream.buffered().use {}
         }
-    }
 
     private fun pipeOutputStreamToPipedInputStream(writeToOutput: (OutputStream) -> Unit): PipedInputStream {
         val pipedInputStream = PipedInputStream()
@@ -137,7 +138,7 @@ class DbVaultService (
         // Schreibe in einem separaten Thread in den PipedOutputStream
         thread {
             pipedOutputStream.use { outputStream ->
-                writeToOutput(outputStream)  // Daten werden in den OutputStream geschrieben
+                writeToOutput(outputStream)
             }
         }
 
