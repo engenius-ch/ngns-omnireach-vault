@@ -11,7 +11,7 @@ import javax.crypto.CipherOutputStream
 
 @Service
 class EncryptionService(
-    val encryptionUtil: EncryptionUtil
+    private val encryptionUtil: EncryptionUtil
 ) {
 
     fun zipEncryptAndBase64EncodeStream(inputStream: InputStream, outputStream: OutputStream, passphrase: String) {

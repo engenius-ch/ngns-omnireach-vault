@@ -1,27 +1,23 @@
 package ch.ngns.or.vault.services.excryption
 
 import ch.ngns.or.vault.services.config.ORVaultProperties
-import kotlin.concurrent.thread
 import org.assertj.core.util.Files
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertArrayEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.*
-import java.nio.charset.StandardCharsets
-import java.security.MessageDigest
-import java.util.Base64
-import java.util.UUID
+import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
 import javax.crypto.CipherOutputStream
 import javax.crypto.SecretKey
-
+import kotlin.concurrent.thread
 
 class EncryptionUtilTest {
 
-    //@Autowired
     lateinit var encryptionUtil: EncryptionUtil
     lateinit var encryptionService: EncryptionService
 
@@ -39,16 +35,16 @@ class EncryptionUtilTest {
 
     @Test
     fun getSalt() {
-        assertEquals(encryptionUtil.getSalt(),TEST_SALT);
+        assertEquals(encryptionUtil.getSalt(),TEST_SALT)
     }
 
     @Test
     fun encrypt() {
-        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest_plain.txt")
-        val outputStream: ByteArrayOutputStream = ByteArrayOutputStream()
+        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest_plain.txt")!!
+        val outputStream = ByteArrayOutputStream()
         //outputStream.encodingWith(Base64.Default)
         encryptionUtil.encrypt(inputStream, outputStream, encryptionUtil.createKeyFromString(encryptionUtil.getSalt() + TEST_PW))
-        System.out.println("Encrypted Data: ")
+        println("Encrypted Data: ")
         println("---")
         System.out.flush()
         System.out.use { fileOutputStream ->
@@ -65,12 +61,12 @@ class EncryptionUtilTest {
 
     @Test
     fun decrypt() {
-        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest_enc.txt")
-        val outputStream: ByteArrayOutputStream = ByteArrayOutputStream()
+        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest_enc.txt")!!
+        val outputStream = ByteArrayOutputStream()
         //outputStream.encodingWith(Base64.Default)
         val decodedInputStream: InputStream = Base64.getDecoder().wrap(inputStream)
         encryptionUtil.decrypt(decodedInputStream, outputStream, encryptionUtil.createKeyFromString(encryptionUtil.getSalt() + TEST_PW))
-        System.out.println("Decrypted Data: ")
+        println("Decrypted Data: ")
         println("---")
         System.out.flush()
         System.out.use { fileOutputStream ->
@@ -169,7 +165,7 @@ class EncryptionUtilTest {
 
     @Test
     fun testEncryptBase64Large() {
-        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest-large_plain.txt")
+        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest-large_plain.txt")!!
 
         // Step 2: Set up AES encryption (use a 128-bit key for this example)
         val secretKey: SecretKey = encryptionUtil.createKeyFromString("password")
@@ -189,7 +185,7 @@ class EncryptionUtilTest {
     }
     @Test
     fun testEncryptZipBase64() {
-        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest-large_plain.txt")
+        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest-large_plain.txt")!!
 
         // Step 2: Set up AES encryption (use a 128-bit key for this example)
         val secretKey: SecretKey = encryptionUtil.createKeyFromString("password")
@@ -217,7 +213,7 @@ class EncryptionUtilTest {
 
     @Test
     fun testEncryptBase64Zip() {
-        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest-large_plain.txt")
+        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest-large_plain.txt")!!
 
         // Step 2: Set up AES encryption (use a 128-bit key for this example)
         val secretKey: SecretKey = encryptionUtil.createKeyFromString("password")
@@ -239,7 +235,7 @@ class EncryptionUtilTest {
 
     @Test
     fun testEncryptLargeNoZipNoBase64() {
-        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest-large_plain.txt")
+        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest-large_plain.txt")!!
 
         // Step 2: Set up AES encryption (use a 128-bit key for this example)
         val secretKey: SecretKey = encryptionUtil.createKeyFromString("password")
@@ -258,10 +254,9 @@ class EncryptionUtilTest {
 
     @Test
     fun testZipEncryptBase64() {
-        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest-large_plain.txt")
+        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest-large_plain.txt")!!
         val outFile = Files.newFile(Files.temporaryFolderPath().plus("ZipEncryptBase64-").plus(UUID.randomUUID()).plus(".txt"))
         val outputStream = FileOutputStream(outFile)
-
 
         // Step 2: Set up AES encryption (use a 128-bit key for this example)
         val secretKey: SecretKey = encryptionUtil.createKeyFromString("password")
@@ -280,8 +275,7 @@ class EncryptionUtilTest {
 
     @Test
     fun testBase64DecodeDecryptUnzip() {
-
-        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest-large_enc.txt")
+        val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest-large_enc.txt")!!
         val outFile = Files.newFile(Files.temporaryFolderPath().plus("Base64DecodeDecryptUnzip-").plus(UUID.randomUUID()).plus(".txt"))
         val outputStream = FileOutputStream(outFile)
 
@@ -313,7 +307,7 @@ class EncryptionUtilTest {
     fun testEncryptionService() {
         val origRawResource = "/encryption/enctest-large_plain.txt"
         val encOutputStream: PipedOutputStream = PipedOutputStream()
-        val origByteArray: ByteArray = javaClass.getResource(origRawResource).readBytes()
+        val origByteArray: ByteArray = javaClass.getResource(origRawResource)!!.readBytes()
         val origInputStream: InputStream = ByteArrayInputStream(origByteArray)
         val decodedOutputStream = ByteArrayOutputStream()
         val encryptedInputStream = PipedInputStream(encOutputStream)

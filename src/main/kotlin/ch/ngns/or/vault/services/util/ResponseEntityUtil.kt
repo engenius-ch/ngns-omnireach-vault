@@ -8,9 +8,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
 
-val CSV_MEDIA_TYPE = MediaType.parseMediaType("text/csv")
-val ZIP_MEDIA_TYPE = MediaType.parseMediaType("application/zip")
-
 object ResponseEntityUtil {
 
     fun createResponseEntity(
@@ -74,17 +71,14 @@ object ResponseEntityUtil {
         return fileMimeType == format
     }
 
-    private fun isPdf(file: ByteArray): Boolean {
-        return assureFormat(file, "application/pdf")
-    }
+    private fun isPdf(file: ByteArray): Boolean = assureFormat(file, "application/pdf")
 
-    private fun isImage(file: ByteArray): Boolean {
-        return try {
+    private fun isImage(file: ByteArray): Boolean =
+        try {
             ImageIO.read(ByteArrayInputStream(file)) != null
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
-    }
 
     private fun getImageContentType(file: ByteArray): MediaType {
         val imageReaders = ImageIO.getImageReaders(ImageIO.createImageInputStream(ByteArrayInputStream(file)))
