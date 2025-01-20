@@ -20,7 +20,6 @@ import java.util.*
 import kotlin.concurrent.thread
 
 @RestController
-@RequestMapping("/vault")
 @Tag(description = "Store and retreive data from the vault", name = "Vault Controller")
 @Component
 class ORVaultController(
@@ -35,7 +34,7 @@ class ORVaultController(
     @Operation(description = "Fetch a salt")
     fun getSalt(): String? = encryptionUtil.getSalt()
 
-    @GetMapping("/{id}/stream")
+    @GetMapping("/{id}")
     fun downloadFileStreaming(
         @RequestHeader(name = "X-Encryption-Key", required = false) encryptionKey: String?,
         @PathVariable(name = "id") id: String,
@@ -61,7 +60,7 @@ class ORVaultController(
             }
         }
 
-    @PostMapping("/upload", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun uploadFile(
         @RequestHeader(name = "X-Encryption-Key", required = false) encryptionKey: String?,
         @RequestParam file: MultipartFile
