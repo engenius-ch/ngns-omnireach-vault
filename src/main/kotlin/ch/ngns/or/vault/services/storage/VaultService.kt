@@ -6,7 +6,7 @@ import java.util.*
 
 interface VaultService {
 
-    fun storeObject(data: InputStream) : UUID?
+    fun storeObject(data: InputStream) : UUID
 
     fun retrieveObject(uuid: UUID, outputStream: OutputStream)
 

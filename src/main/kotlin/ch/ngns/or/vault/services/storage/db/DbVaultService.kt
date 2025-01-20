@@ -40,14 +40,14 @@ class DbVaultService (
     private val defaultSegmentFetchParallelism = 10
 
     @Transactional
-    override fun storeObject(dataStream: InputStream): UUID? =
+    override fun storeObject(dataStream: InputStream): UUID =
         dataStream.use {
             val segmentSize = getSegmentSize()
             runBlocking {
                 val chunks = inputStreamToChunks(dataStream, segmentSize)
 
                 val data = dbVaultRepository.save(DbVaultObject().apply {
-                     data = chunks.receiveCatching().getOrNull() ?: return@runBlocking null
+                     data = chunks.receiveCatching().getOrThrow()
                 })
 
                 var index = 0
@@ -59,7 +59,7 @@ class DbVaultService (
                     entityManager.flush()
                     entityManager.detach(segment)
                 }
-                data.id
+                data.id!!
             }
     }
 
