@@ -4,4 +4,4 @@ logging:
 
 orvault:
   services:
-    encryption-salt: ${ORVAULT_ENC_SALT:ortest}
+    encryption-salt: ${OR_VAULT_ENC_SALT:ortest}

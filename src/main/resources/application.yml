@@ -19,7 +19,7 @@ server:
 
 orvault:
   services:
-    encryption-salt: ${ORVAULT_ENC_SALT:GiwRRVGn7dxwfB685fdPGIZMh0fNNShsgZ7gVCPYFXCGjzBMvTcGA8LCBs4Tmx7QGCkyapRZfj9gO7tq5LWZx1JEmtB6Os9jmPmg}
-    encryption-key-length: ${ORVAULT_ENC_KEY_LENGTH:32}
+    encryption-salt: ${OR_VAULT_ENC_SALT:GiwRRVGn7dxwfB685fdPGIZMh0fNNShsgZ7gVCPYFXCGjzBMvTcGA8LCBs4Tmx7QGCkyapRZfj9gO7tq5LWZx1JEmtB6Os9jmPmg}
+    encryption-key-length: ${OR_VAULT_ENC_KEY_LENGTH:32}
 
 
