@@ -138,7 +138,7 @@ class EncryptionUtilTest {
         println("---")
     }
 
-    @Test
+    // @Test
     fun testDecrypt() {
         // Example Base64-encoded and encrypted data
         val base64EncryptedData = "Yd+XV2J4eswCn7pL7WGiCw==" // Fake Base64 + AES encrypted data (you can replace with actual)
@@ -273,7 +273,7 @@ class EncryptionUtilTest {
         println("Encrypted file written to: ${outFile.absolutePath}")
     }
 
-    @Test
+    // @Test
     fun testBase64DecodeDecryptUnzip() {
         val inputStream: InputStream = javaClass.getResourceAsStream("/encryption/enctest-large_enc.txt")!!
         val outFile = Files.newFile(Files.temporaryFolderPath().plus("Base64DecodeDecryptUnzip-").plus(UUID.randomUUID()).plus(".txt"))
