@@ -12,8 +12,6 @@ plugins {
 	id("maven-publish")
 }
 
-group = "ch.ngns"
-
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
 }
@@ -65,12 +63,15 @@ sourceSets["main"].resources.srcDir("src/main/schema")
 publishing {
 	publications {
 		create<MavenPublication>("bootJava") {
+			group = "ch.ngns"
+			artifactId = rootProject.name
 			artifact(tasks.named("bootJar"))
 		}
 	}
+
 	repositories {
 		maven {
-			url = uri("https://maven.pkg.github.com/Engenius-ch/ngns-omnireach-vault")
+			url = uri("https://maven.pkg.github.com/engenius-ch/ngns-omnireach-vault")
 			credentials {
 				username = System.getProperty("GITHUB_USER")
 				password = System.getProperty("GITHUB_TOKEN")
