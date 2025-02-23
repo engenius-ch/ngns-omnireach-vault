@@ -13,8 +13,8 @@ data class DbVaultObject(
     @GeneratedValue(strategy = GenerationType.UUID)
     var id: UUID? = null,
 
-    @Column(name = "data", columnDefinition = "BLOB")
     @Lob
+    @Column(name = "data")
     var data: ByteArray? = null,
 
     @Column(name = "has_segments")
