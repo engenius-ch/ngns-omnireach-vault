@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:services;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:services;DB_CLOSE_DELAY=-1
     driverClassName: org.h2.Driver
     username: sa
   h2:
