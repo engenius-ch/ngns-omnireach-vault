@@ -4,7 +4,6 @@ import ch.ngns.or.vault.services.excryption.EncryptionService
 import ch.ngns.or.vault.services.excryption.EncryptionUtil
 import ch.ngns.or.vault.services.storage.VaultService
 import ch.ngns.or.vault.services.util.ResponseEntityUtil
-import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
@@ -29,10 +28,6 @@ class ORVaultController(
 ) {
 
     private val logger = LoggerFactory.getLogger(ORVaultController::class.java)
-
-    @GetMapping("/salt")
-    @Operation(description = "Fetch a salt")
-    fun getSalt(): String? = encryptionUtil.getSalt()
 
     @GetMapping("/{id}")
     fun downloadFileStreaming(
